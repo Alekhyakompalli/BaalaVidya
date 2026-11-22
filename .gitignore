@@ -51,3 +51,5 @@ infra/dev/qdrant_storage/
 Thumbs.db
 .idea/
 .vscode/
+
+ingestion/data/

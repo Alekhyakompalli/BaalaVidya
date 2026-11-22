@@ -1,0 +1,5 @@
+# Deploy dependencies (Railway). torch is installed separately in the Dockerfile from the CPU index.
+fastapi==0.165.0
+uvicorn==0.54.0
+qdrant-client==1.20.0
+sentence-transformers==6.3.0

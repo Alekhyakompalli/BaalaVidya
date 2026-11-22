@@ -580,6 +580,7 @@ This plan turns `docs/architecture.md` into ordered phases. Each phase delivers 
 | Online Mode [PS: Online Mode] | 2, 6, 7 |
 | Play & Learn [PS: 11. Play & Learn Module] | 8 |
 | Bala Buddy [PS: 12. Bala Buddy] | 2, 4, 8 |
+| Pilot, Beta & Launch [PS: Success Metrics 1 to 6] | 11 |
 
 ## Open items to resolve before Phase 0 ends
 
