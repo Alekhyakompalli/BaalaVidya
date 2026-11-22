@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:baalavidya/l10n/app_strings.dart';
@@ -21,7 +23,7 @@ import 'package:baalavidya/services/offline_store.dart';
 /// 4. Related videos section with interactive card preview.
 /// 5. Practice questions section with quiz launcher.
 /// 6. 4 Next Steps interactive action bar: Play Game, Practice Workbook, Watch Video, Ask Doubts.
-class TopicViewScreen extends ConsumerWidget {
+class TopicViewScreen extends ConsumerStatefulWidget {
   final TopicItem topic;
 
   const TopicViewScreen({
@@ -30,7 +32,49 @@ class TopicViewScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TopicViewScreen> createState() => _TopicViewScreenState();
+}
+
+class _TopicViewScreenState extends ConsumerState<TopicViewScreen> {
+  /// Time on the topic needed before it counts as completed.
+  static const Duration _completionThreshold = Duration(seconds: 30);
+
+  /// Maximum seconds one session can add to recorded learning time (60 minutes).
+  static const int _maxSessionSeconds = 60 * 60;
+
+  final Stopwatch _stopwatch = Stopwatch();
+  Timer? _completionTimer;
+  // Captured in initState so dispose does not need to touch `ref`.
+  late final StateController<int> _recordedSecondsNotifier;
+
+  TopicItem get topic => widget.topic;
+
+  @override
+  void initState() {
+    super.initState();
+    _recordedSecondsNotifier = ref.read(recordedLearningSecondsProvider.notifier);
+    _stopwatch.start();
+    _completionTimer = Timer(_completionThreshold, () {
+      if (!mounted) return;
+      final done = ref.read(completedTopicsProvider);
+      if (!done.contains(topic.id)) {
+        ref.read(completedTopicsProvider.notifier).state = {...done, topic.id};
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _completionTimer?.cancel();
+    _stopwatch.stop();
+    final elapsed = _stopwatch.elapsed.inSeconds;
+    _recordedSecondsNotifier.state +=
+        elapsed > _maxSessionSeconds ? _maxSessionSeconds : elapsed;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final lang = ref.watch(languageProvider);
     final isDone = ref.watch(completedTopicsProvider).contains(topic.id);
     final masteryScores = ref.watch(topicMasteryScoresProvider);

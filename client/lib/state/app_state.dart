@@ -142,6 +142,11 @@ final completedTopicsProvider = StateProvider<Set<String>>((ref) {
   return {'bio_ch1_t1', 'bio_ch2_t1'};
 });
 
+/// Recorded learning time in seconds, summed over topic-view sessions.
+/// Each session is capped at 60 minutes by TopicViewScreen before it is added.
+/// In-memory only: OfflineStore has no progress persistence, so this resets on app restart.
+final recordedLearningSecondsProvider = StateProvider<int>((ref) => 0);
+
 /// Chat Service provider
 final chatServiceProvider = Provider<ChatService>((ref) => ChatService());
 

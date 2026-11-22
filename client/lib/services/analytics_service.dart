@@ -75,6 +75,7 @@ class AnalyticsService {
     Set<String>? badges,
     Set<String>? completedTopics,
     int? questionsAsked,
+    int? recordedLearningSeconds,
   }) async {
     // 1. Try online API call
     try {
@@ -90,8 +91,7 @@ class AnalyticsService {
     }
 
     // 2. Offline Fallback Computation from local progress parameters
-    final completed = completedTopics ?? {'bio_ch1_t1', 'bio_ch2_t1'};
-    final qCount = questionsAsked ?? 3;
+    final completed = completedTopics ?? <String>{};
     final totalXp = xp ?? 140;
     final curLevel = level ?? ((totalXp / 100).floor() + 1);
     final curStreak = streak ?? 5;
@@ -99,9 +99,10 @@ class AnalyticsService {
     final curStars = stars ?? 12;
     final curBadges = (badges ?? {'explorer', 'science_genius'}).toList();
 
-    // Time spent calculation:
-    final timeSpent = completed.length * 15 + qCount * 2 + 10;
-    final timeToday = timeSpent > 35 ? 35 : timeSpent;
+    // Time spent: recorded learning seconds converted to whole minutes (0 when nothing recorded).
+    // Not split by day, so "today" equals the recorded total.
+    final timeSpent = (recordedLearningSeconds ?? 0) ~/ 60;
+    final timeToday = timeSpent;
 
     final bioDone = completed.where((t) => t.contains('bio')).length;
     final mathDone = completed.where((t) => t.contains('math')).length;
@@ -114,7 +115,7 @@ class AnalyticsService {
         teluguSubjectName: 'జీవశాస్త్రం',
         completedTopicsCount: bioDone,
         totalTopicsCount: 6,
-        timeSpentMinutes: bioDone > 0 ? bioDone * 15 : 20,
+        timeSpentMinutes: timeSpent,
         completionPercentage: ((bioDone / 6.0) * 100).round(),
       ),
       SubjectProgressSummary(
@@ -123,7 +124,7 @@ class AnalyticsService {
         teluguSubjectName: 'గణితం',
         completedTopicsCount: mathDone,
         totalTopicsCount: 6,
-        timeSpentMinutes: mathDone * 15,
+        timeSpentMinutes: 0,
         completionPercentage: ((mathDone / 6.0) * 100).round(),
       ),
       SubjectProgressSummary(
@@ -132,7 +133,7 @@ class AnalyticsService {
         teluguSubjectName: 'తెలుగు ప్రథమ భాష',
         completedTopicsCount: telDone,
         totalTopicsCount: 4,
-        timeSpentMinutes: telDone * 15,
+        timeSpentMinutes: 0,
         completionPercentage: ((telDone / 4.0) * 100).round(),
       ),
     ];
@@ -140,34 +141,9 @@ class AnalyticsService {
     final subjectsCompleted = subjectSummaries.where((s) => s.completionPercentage >= 100).length;
     final subjectsInProgress = subjectSummaries.where((s) => s.completionPercentage > 0 && s.completionPercentage < 100).length;
 
-    // Weak and Strength concepts
-    final weakConcepts = <ConceptInsight>[
-      const ConceptInsight(
-        topicId: 'bio_ch1_t2',
-        topicTitle: 'Light & Dark Reactions (Calvin Cycle)',
-        teluguTopicTitle: 'కాంతి మరియు నిష్కాంతి చర్యలు',
-        subjectId: 'biology',
-        accuracyPercentage: 45,
-        status: 'weak',
-        recommendedAction: 'Review chlorophyll grana vs stroma functions with Bala Buddy.',
-        teluguRecommendedAction: 'గ్రానా మరియు స్ట్రోమా విధులపై బాల బడ్డీతో అదనపు సాధన చేయండి.',
-        hasSufficientData: true,
-      ),
-    ];
-
-    final strengthAreas = <ConceptInsight>[
-      const ConceptInsight(
-        topicId: 'bio_ch1_t1',
-        topicTitle: 'Photosynthesis & Autotrophic Nutrition',
-        teluguTopicTitle: 'కిరణజన్య సంయోగక్రియ & స్వయంపోషణ',
-        subjectId: 'biology',
-        accuracyPercentage: 92,
-        status: 'strength',
-        recommendedAction: 'Great confidence! Encourage child to explain this concept to family.',
-        teluguRecommendedAction: 'అద్భుతమైన పట్టు! ఈ భావనను కుటుంబ సభ్యులకు వివరించమని ప్రోత్సహించండి.',
-        hasSufficientData: true,
-      ),
-    ];
+    // Weak and Strength concepts: no real assessment data is recorded yet, so both lists are empty.
+    final weakConcepts = <ConceptInsight>[];
+    final strengthAreas = <ConceptInsight>[];
 
     String? minDataNotice;
     if (completed.length < 2) {
@@ -183,10 +159,10 @@ class AnalyticsService {
       subjectsCompletedCount: subjectsCompleted,
       subjectsInProgressCount: subjectsInProgress,
       subjectSummaries: subjectSummaries,
-      workbookCompletionRate: 85.0,
-      workbooksCompletedCount: 2,
-      gamePerformanceScore: 90.0,
-      gamesCompletedCount: 1,
+      workbookCompletionRate: 0.0,
+      workbooksCompletedCount: 0,
+      gamePerformanceScore: 0.0,
+      gamesCompletedCount: 0,
       weakConcepts: weakConcepts,
       strengthAreas: strengthAreas,
       improvementRecommendations: [

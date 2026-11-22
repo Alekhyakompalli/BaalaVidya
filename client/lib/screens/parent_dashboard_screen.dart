@@ -94,6 +94,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
     final badges = ref.read(learnerBadgesProvider);
     final completedTopics = ref.read(completedTopicsProvider);
     final qCount = ref.read(questionsAskedProvider);
+    final recordedLearningSeconds = ref.read(recordedLearningSecondsProvider);
 
     final data = await _analyticsService.getParentAnalytics(
       learnerId: learnerId,
@@ -107,6 +108,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
       badges: badges,
       completedTopics: completedTopics,
       questionsAsked: qCount,
+      recordedLearningSeconds: recordedLearningSeconds,
     );
 
     if (mounted) {
