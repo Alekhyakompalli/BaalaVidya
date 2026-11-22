@@ -52,4 +52,8 @@ Thumbs.db
 .idea/
 .vscode/
 
-ingestion/data/
+ingestion/data/*
+!ingestion/data/qdrant_local/
+!ingestion/data/chunks/
+ingestion/data/chunks/*
+!ingestion/data/chunks/class10_pilot.jsonl
